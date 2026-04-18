@@ -45,7 +45,7 @@ int main()
 
         printf("%f, %f\n", accel_x, accel_y);
         
-        drawLines(accel_x, accel_y); // because the directions are just flipped for the imu and display
+        drawLines(accel_x, accel_y);
 
         sleep_ms(10); //~ running at 10ms
         ssd1306_update();
