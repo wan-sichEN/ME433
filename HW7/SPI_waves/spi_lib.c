@@ -14,7 +14,7 @@ void init_spi(void){
 void writeDAC(int channel, float voltage){// where channel determines Vout A or B
     uint8_t data[2];
     data[0] = 0b01110000; // 4 bits of voltage + 1 or 0 for channel communication
-    data[1] = 0b11111100; // remaining 6 bits of voltage
+    data[1] = 0; // remaining 6 bits of voltage
 
     uint16_t digital_v = voltage/3.3 * 1023; // converts voltage into a 10 bit binary value
     data[0] = data[0] | ((channel & 1) << 7) | ((digital_v >> 6) & 0b1111); // put channel bit and first 4 voltage bits in
