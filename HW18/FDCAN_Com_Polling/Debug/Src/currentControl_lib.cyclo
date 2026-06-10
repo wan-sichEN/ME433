@@ -1,0 +1,9 @@
+../Src/currentControl_lib.c:16:6:print_STM32	1
+../Src/currentControl_lib.c:20:10:read_ADC	2
+../Src/currentControl_lib.c:35:6:HAL_TIM_PeriodElapsedCallback	7
+../Src/currentControl_lib.c:86:6:init_PWM_STM32	1
+../Src/currentControl_lib.c:94:6:init_ina219	1
+../Src/currentControl_lib.c:102:7:read_ina219	1
+../Src/currentControl_lib.c:110:6:writeINA219	1
+../Src/currentControl_lib.c:120:14:readINA219	1
+../Src/currentControl_lib.c:129:6:set_motor_pwm	5
