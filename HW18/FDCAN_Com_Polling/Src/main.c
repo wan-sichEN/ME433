@@ -223,7 +223,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("CAN RX ready, waiting for ID 0x%03X...\r\n", RX_ID);
-  uint8_t rxData[8];
+  //uint8_t rxData[8];
 
   while (1)
   {
@@ -234,28 +234,6 @@ int main(void)
 //	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
 //	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 1200);
 //	  HAL_Delay(500);
-
-//	  uint8_t c;
-//	  //print_STM32("START!\n");
-//	  HAL_StatusTypeDef status = HAL_UART_Receive(&hcom_uart[COM1], &c, 1, 100);
-//	  if (status != HAL_OK) continue;  // timeout, nothing received, loop back (because it receive keeps getting stuck on \n for some reason)
-//	  if (c == '\r' || c == '\n'){
-//		  //printf("Purging %d\n", c);
-//		  continue;
-//	  }
-//
-//	  if (c == 'a') {
-//		  //print_STM32("Current Control Requested\n");
-//	      state = 1;
-//	      while (state != 0);
-//	      // print current results
-//	      for (int i = 0; i < 400; i++) {
-//	          char buf[32];
-//	          snprintf(buf, sizeof(buf), "%d\t%hd\t%hd\r\n", i, desired_array[i], current_array[i]);
-//	          print_STM32(buf);
-//	      }
-//	      //print_STM32("Task finished\n");
-//	  }
 
     /* Polling mode: Wait for one message received */
     while (HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_RX_FIFO0) < 1U)
@@ -271,27 +249,60 @@ int main(void)
 
     // Expecting 4 bytes = one float
     if (rxHeader.DataLength == FDCAN_DLC_BYTES_4) {
-		float value;
-		memcpy(&value, rxData, 4);
-		printf("desired_current = %.4d\r\n", (int)value);
+		memcpy(&desired_current, rxData, 4);
+		//printf("desired_current = %.4d\r\n", (int)desired_current);
 		}
     else {
 		printf("Unexpected DLC: 0x%02lX\r\n", rxHeader.DataLength);
 		}
 
-//    /* Compare received RX message to expected data. Ignore if not matching. */
-//    if ((rxHeader.Identifier == RX_ID) &&
-//        (rxHeader.IdType     == FDCAN_STANDARD_ID) &&
-//        (rxHeader.DataLength == FDCAN_DLC_BYTES_16) &&
-//        (BufferCmp8b(txData, rxData, COUNTOF(rxData)) == 0U))
-//    {
-//      /* Turn LED1 on */
-//      BSP_LED_On(LED1);
-//    }
-//    for(int i=0;i<15;i++){
-//    	printf("%c", rxData[i]);
-//              }
-//    printf("\n");
+
+    static volatile float eint = 0.0f;
+
+    signed short current = read_ina219();
+    float error = desired_current - current;
+	// reset integrator when no force desired
+	if (desired_current == 0.0f) {
+	    eint = 0.0f;
+	} else {
+	    eint = eint + error;
+	    if (eint > EINT_MAX) eint = EINT_MAX;
+	    else if (eint < -EINT_MAX) eint = -EINT_MAX;
+	}
+
+	float u = 1*error + 0.001*eint;
+	if(u > U_MAX){
+		u = U_MAX;
+	}
+	else if (u < -U_MAX){
+		u = -U_MAX;
+	}
+	//printf("actual_currect = %.4d\r\n", (int)current);
+	printf("desired_current = %.4d, actual_current = %.4d, u = %.4d\r\n", (int)desired_current, (int)current, (int)u);
+	set_motor_pwm((int)u);
+
+	HAL_Delay(5);  // run at ~200Hz max
+
+//	  uint8_t c;
+//	  //print_STM32("START!\n");
+//	  HAL_StatusTypeDef status = HAL_UART_Receive(&hcom_uart[COM1], &c, 1, 100);
+//	  if (status != HAL_OK) continue;  // timeout, nothing received, loop back (because it receive keeps getting stuck on \n for some reason)
+//	  if (c == '\r' || c == '\n'){
+//		  //printf("Purging %d\n", c);
+//		  continue;
+//	  }
+//
+
+//	      state = 1;
+//	      while (state != 0);
+//	      // print current results
+//	      for (int i = 0; i < 400; i++) {
+//	          char buf[32];
+//	          snprintf(buf, sizeof(buf), "%d\t%hd\t%hd\r\n", i, desired_array[i], current_array[i]);
+//	          print_STM32(buf);
+//	      }
+//	      //print_STM32("Task finished\n");
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

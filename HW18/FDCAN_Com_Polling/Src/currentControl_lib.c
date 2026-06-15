@@ -6,6 +6,7 @@
 volatile uint8_t state = 0;
 volatile signed short current_array[MAX_SAMPLES];
 volatile signed short desired_array[MAX_SAMPLES];
+volatile float desired_current;
 
 float read_ina219();
 void writeINA219(int reg, int value);
@@ -35,51 +36,26 @@ uint32_t read_ADC(void){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     if (htim == &htim2) {
 		// do your interrupt stuff here
-    	static signed short desired_current = DESIRED_CURRENT_RAW;
-		static volatile float eint = 0.0f;
-		static volatile int counter = 0;
-		static volatile int nth_sample = 0;
-
-    	// safety
-    	uint32_t adc_raw = read_ADC();
-    	if (adc_raw < 250 || adc_raw > 4095 - 250){
-    		// turn motor off
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
-    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400);
-    	}
-
-    	// current control
-    	if (state == 1) {
-			signed short current = read_ina219();
-
-			if(counter == 100){
-				desired_current = -desired_current;
-				counter = 0;
-			}
-
-			// PI Control
-			float error = desired_current - current;
-			eint = eint + error;
-			float u = KP_CURRENT*error + KI_CURRENT*eint;
-			set_motor_pwm((int)u);
-
-			desired_array[nth_sample] = desired_current;
-			current_array[nth_sample] = current;
-
-			counter++;
-			nth_sample++;
-
-			if (nth_sample >= MAX_SAMPLES) {
-				// shut down motor
-				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
-				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400);
-				state = 0;
-				counter = 0;
-				nth_sample = 0;
-				eint = 0.0f;
-				desired_current = DESIRED_CURRENT_RAW;
-			}
-		}
+//		static volatile float eint = 0.0f;
+//		static volatile int counter = 0;
+//		static volatile int nth_sample = 0;
+//
+//    	// safety
+//    	uint32_t adc_raw = read_ADC();
+//    	if (adc_raw < 250 || adc_raw > 4095 - 250){
+//    		// turn motor off
+//    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
+//    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400);
+//    	}
+//
+//    	// current control
+//		signed short current = read_ina219();
+//
+//		// PI Control
+//		float error = desired_current - current;
+//		eint = eint + error;
+//		float u = KP_CURRENT*error + KI_CURRENT*eint;
+//		set_motor_pwm((int)u);
     }
 }
 

@@ -68,4 +68,12 @@ def draw():
     color="black"
     )
 
+import atexit
+
+def cleanup():
+    if ser:
+        ser.close()
+
+atexit.register(cleanup)
+
 pgzrun.go()
