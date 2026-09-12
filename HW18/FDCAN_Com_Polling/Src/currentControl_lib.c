@@ -40,13 +40,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 //		static volatile int counter = 0;
 //		static volatile int nth_sample = 0;
 //
-//    	// safety
-//    	uint32_t adc_raw = read_ADC();
-//    	if (adc_raw < 250 || adc_raw > 4095 - 250){
-//    		// turn motor off
-//    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
-//    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400);
-//    	}
+    	// safety
+    	uint32_t adc_raw = read_ADC();
+    	if (adc_raw < 250 || adc_raw > 4095 - 250){
+    		// turn motor off
+    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 2400);
+    		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 2400);
+    	}
 //
 //    	// current control
 //		signed short current = read_ina219();
