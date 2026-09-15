@@ -5,7 +5,7 @@
 #include "force_sensor.h"
  
 #define CAN_ID 0x111
-#define MAX_DESIRED_CURRENT 2100 // 700 mA 
+#define MAX_DESIRED_CURRENT 2100 // mA 
 #define MAX_ADDED_FORCE_RAW 150000
 #define MAX_DEPTH 0.25 // corresponds to graphics
 #define BASE_FORCE 674000
